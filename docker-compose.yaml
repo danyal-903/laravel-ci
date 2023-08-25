@@ -1,0 +1,56 @@
+version: "3.7"
+services:
+
+  kaizen-global:
+    image: ghcr.io/<<github-username>>/<<repository-name>>:<<branch-name>>
+    container_name: <<conatiner-name>>
+    env_file:
+      - ./kaizen.env
+    ports:
+      - 9000:80
+    restart: unless-stopped
+    networks:
+      - docker
+    volumes:
+      - storage:/var/www/html/storage
+
+
+  mysql:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: <<set a root password here>>
+    ports:
+      - 3306:3306
+    expose:
+      - 3306
+    networks:
+      - docker
+    volumes:
+      - mysql:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    depends_on:
+      - mysql
+    networks:
+      - docker
+    restart: always
+    environment:
+      - ADMINER_DEFAULT_SERVER=mysql
+    ports:
+      - 4444:8080
+
+networks:
+  docker:
+    name: docker
+    driver: bridge
+
+volumes:
+  mysql:
+    name: mysql
+    driver: local
+  storage:
+    name: storage
+    driver: local
